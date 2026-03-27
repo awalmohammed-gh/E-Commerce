@@ -27,11 +27,11 @@ const Navbar = () => {
     {
       name: "Categories",
       children: [
-        { name: "Men", path: "/category/men" },
-        { name: "Women", path: "/category/women" },
-        { name: "Kids", path: "/category/kids" },
-        { name: "Electronics", path: "/category/electronics" },
-        { name: "Shoes", path: "/category/shoes" },
+        { name: "Men", path: "/men" },
+        { name: "Women", path: "/women" },
+        { name: "Kids", path: `/kid` },
+        { name: "Electronics", path: "/electronics" },
+        { name: "Shoes", path: "/shoes" },
       ],
     },
     { name: "Blog", path: "/blog" },
