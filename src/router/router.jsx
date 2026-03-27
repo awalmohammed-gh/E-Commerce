@@ -1,0 +1,21 @@
+import { createBrowserRouter, createRoutesFromElements, Route } from "react-router-dom";
+import Home from "../pages/Home";
+import SystemLayout from "../layout/SystemLayout";
+import CategoryPage from "../pages/CategoryPage";
+import Product from "../pages/Product";
+import Cart from "../pages/Cart";
+import Contact from "../pages/Contact";
+
+const router = createBrowserRouter(
+    createRoutesFromElements(
+       <Route path="/" element={<SystemLayout/>}>
+           <Route index element={<Home/>}/>
+           <Route path="/:category" element={<CategoryPage/>}/>
+           <Route path="product/:id" element={<Product/>}/>
+           <Route path="cart" element={<Cart/>}/>
+           <Route path="contact" element={<Contact/>}/>
+       </Route>
+    )
+)
+
+export default router;
