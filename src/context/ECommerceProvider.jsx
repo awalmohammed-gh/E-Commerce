@@ -8,11 +8,21 @@ export const ECommerceProvider = ({children}) => {
   const [cartItems, setCartItems] = useState({});
 
   const addToCart = (itemId, size) =>{
-    
+      setCartItems((prev) =>({
+        ...prev,
+        [itemId]:{
+          ...prev[itemId],
+          [size]: (prev[itemId]?.[size] || 0) + 1
+        }
+      }))
   }
 
+console.log(cartItems);
+
     const value = {
-      products
+      products,
+      cartItems,
+      addToCart
     }
   return (
     <ECommerceContext.Provider value={value}>

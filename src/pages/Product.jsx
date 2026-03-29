@@ -19,7 +19,7 @@ import {
 
 const Product = () => {
   const { id } = useParams();
-  const { products } = useECommerce();
+  const { products,addToCart } = useECommerce();
   const [thumbnails, setThumbnails] = useState("");
   const [productData, setProductData] = useState(null);
   const [size, setSize] = useState([]);
@@ -249,7 +249,7 @@ const Product = () => {
                     </button>
                     <span className="w-12 text-center text-lg font-medium">{quantity}</span>
                     <button
-                      onClick={incrementQuantity}
+                      onClick={() => addToCart(productData._id, size)}
                       className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition"
                     >
                       <Plus size={16} />
@@ -263,7 +263,7 @@ const Product = () => {
                     <Heart size={18} />
                     Add to Wishlist
                   </button>
-                  <button className="flex-1 py-3.5 bg-[#1E3A8A] text-white font-semibold rounded-xl hover:bg-[#2E4A9A] transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                  <button onClick={() => addToCart(productData._id, size)} className="flex-1 py-3.5 bg-[#1E3A8A] text-white font-semibold rounded-xl hover:bg-[#2E4A9A] transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
                     <ShoppingBag size={18} />
                     Add to Cart
                   </button>
