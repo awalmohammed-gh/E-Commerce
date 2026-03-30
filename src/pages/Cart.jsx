@@ -9,12 +9,13 @@ import {
   ArrowLeft,
   Package,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Cart = () => {
   const { cartItems, products, totalAmount, removeItemFromCart, addToCart } =
     useECommerce();
   const [cartData, setCartData] = useState([]);
+  const navigate = useNavigate()
 
   // Prepare cart data
   useEffect(() => {
@@ -301,7 +302,12 @@ const Cart = () => {
                   </div>
                 </div>
 
-                <button className="w-full mt-6 bg-[#1E3A8A] text-white py-3 rounded-xl font-semibold hover:bg-[#2E4A9A] transition">
+                <button
+                onClick={() =>{
+                  if(cartData.length === 0) return;
+                  navigate("/checkout")
+                }}
+                 className={`w-full mt-6 bg-gray-400 text-white py-3 rounded-xl font-semibold hover:bg-[#2E4A9A] transition ${cartData.length > 1 && "bg-[#1E3A8A] cursor-not-allowed"}`}>
                   Proceed to Checkout
                 </button>
 

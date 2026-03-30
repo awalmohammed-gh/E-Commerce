@@ -19,7 +19,7 @@ import toast from "react-hot-toast";
 
 const Product = () => {
   const { id } = useParams();
-  const { products, addToCart, removeItemFromCart, cartItems } = useECommerce();
+  const { products, addToCart, removeItemFromCart, cartItems, addToWishlist, addWishlist, setAddWishlist } = useECommerce();
 
   const [thumbnails, setThumbnails] = useState("");
   const [productData, setProductData] = useState(null);
@@ -199,7 +199,7 @@ const Product = () => {
 
                 {/* Buttons */}
                 <div className="flex items-center gap-4">
-                  <button className="flex-1 flex items-center justify-center mx-auto  bg-gray-100 py-3 rounded-lg">
+                  <button onClick={() => setAddWishlist((prev)  => prev.includes(productData._id) ? prev.filter((wish) => wish !== productData._id) : [...prev, productData._id])} className={`flex-1 flex items-center justify-center mx-auto  bg-gray-100 py-3 rounded-lg ${addWishlist.includes(productData._id) ? "bg-red-600 text-white":""}`}>
                   
                     <Heart size={18} />
                   </button>

@@ -1,15 +1,22 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, ShoppingBag, Heart } from "lucide-react";
+import { useECommerce } from "../../context/ECommerceProvider";
 
 const ECommerceCard = ({ product }) => {
   const { _id, name, image, new_price, old_price } = product;
   const navigate = useNavigate();
+  const {addWishlist, setAddWishlist} = useECommerce()
 
   const goToProduct = () => {
     navigate(`/product/${_id}`);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  const handleWishlist = (id) =>{
+    setAddWishlist((prev)  => prev.includes(_id) ? prev.filter((wish) => wish !== _id) : [...prev, _id])
+  }
+
 
   return (
     <div className="group bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 cursor-pointer">
@@ -36,10 +43,11 @@ const ECommerceCard = ({ product }) => {
 
         {/* Wishlist Button */}
         <button 
-          className="absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md hover:bg-red-50 hover:text-red-500 transition-all duration-200 opacity-0 group-hover:opacity-100"
+          className={`absolute top-3 right-3 w-9 h-9  backdrop-blur-sm rounded-full flex items-center justify-center shadow-md hover:bg-red-50 hover:text-red-500 transition-all duration-200 opacity-0 group-hover:opacity-100 ${addWishlist.includes(_id) ? "bg-red-600 text-white":"bg-white/90"}`}
           onClick={(e) => {
             e.stopPropagation();
             // Add to wishlist logic here
+            handleWishlist(_id)
           }}
         >
           <Heart size={16} />

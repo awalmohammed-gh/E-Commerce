@@ -66,7 +66,9 @@ export const ECommerceProvider = ({children}) => {
 
 
 const removeFromWishlist = (id) =>{
-  setAddWishlist((prev) => prev.filter((item) => item.id !== id))
+  if(window.confirm("Are you sure yu want remove product from wishlist")){
+    setAddWishlist((prev) => prev.filter((item) => item !== id))
+  }
 }
 
 
@@ -90,7 +92,8 @@ const removeFromWishlist = (id) =>{
       totalAmount,
       addToWishlist,
       removeFromWishlist,
-      addWishlist
+      addWishlist,
+      setAddWishlist
     }
   return (
     <ECommerceContext.Provider value={value}>
