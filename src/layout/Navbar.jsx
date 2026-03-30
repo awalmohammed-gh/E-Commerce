@@ -14,14 +14,13 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useECommerce } from "../context/ECommerceProvider";
 
-const Navbar = () => {
+const Navbar = ({onAuthClick}) => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [userMenu, setUserMenu] = useState(false);
-  const { cartCount, addWishlist } = useECommerce();
+  const { cartCount, addWishlist, isLoggedIn, setIsLoggedIn } = useECommerce();
   const navigate = useNavigate();
 
-  const isLoggedIn = true; // simulate auth
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -204,7 +203,7 @@ const Navbar = () => {
                           <Package size={16} /> My Orders
                         </NavLink>
                         <button
-                          onClick={() => console.log("logout")}
+                          onClick={() => setIsLoggedIn(false)}
                           className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
                         >
                           <LogOut size={16} /> Logout
@@ -212,7 +211,7 @@ const Navbar = () => {
                       </>
                     ) : (
                       <NavLink
-                        to="/login"
+                        onClick={onAuthClick}
                         className="block px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-[#1E3A8A] transition-colors"
                       >
                         Login

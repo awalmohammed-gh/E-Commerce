@@ -8,6 +8,8 @@ export const ECommerceProvider = ({children}) => {
 
   const [cartItems, setCartItems] = useState({});
   const [addWishlist, setAddWishlist] = useState([])
+    const [isLoggedIn, setIsLoggedIn] = useState(true)
+
 
 
   //function to items to cart
@@ -93,7 +95,8 @@ const removeFromWishlist = (id) =>{
       addToWishlist,
       removeFromWishlist,
       addWishlist,
-      setAddWishlist
+      setAddWishlist,
+      isLoggedIn, setIsLoggedIn
     }
   return (
     <ECommerceContext.Provider value={value}>
