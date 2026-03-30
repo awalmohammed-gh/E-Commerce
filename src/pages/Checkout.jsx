@@ -353,6 +353,7 @@ const Checkout = () => {
 
             {/* Submit Button */}
             <button
+            onClick={() => navigate("/order")}
               type="submit"
               disabled={isSubmitting}
               className="w-full py-3.5 bg-[#1E3A8A] text-white font-semibold rounded-xl hover:bg-[#2E4A9A] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"

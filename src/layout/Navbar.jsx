@@ -198,7 +198,7 @@ const Navbar = () => {
                           <User size={16} /> My Account
                         </NavLink>
                         <NavLink
-                          to="/orders"
+                          to="/order"
                           className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-[#1E3A8A] transition-colors"
                         >
                           <Package size={16} /> My Orders
