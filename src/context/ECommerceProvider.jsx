@@ -7,6 +7,7 @@ const ECommerceContext = createContext()
 export const ECommerceProvider = ({children}) => {
 
   const [cartItems, setCartItems] = useState({});
+  const [addWishlist, setAddWishlist] = useState([])
 
 
   //function to items to cart
@@ -56,6 +57,18 @@ export const ECommerceProvider = ({children}) => {
      },0)
   },[cartItems])
 
+  const addToWishlist = (id) => {
+  setAddWishlist((prev) => {
+    if (prev.includes(id)) return prev; // avoid duplicates
+    return [...prev, id];
+  });
+};
+
+
+const removeFromWishlist = (id) =>{
+  setAddWishlist((prev) => prev.filter((item) => item.id !== id))
+}
+
 
   //function for total amount
  const totalAmount = () =>{
@@ -74,7 +87,10 @@ export const ECommerceProvider = ({children}) => {
       addToCart,
       cartCount,
       removeItemFromCart,
-      totalAmount
+      totalAmount,
+      addToWishlist,
+      removeFromWishlist,
+      addWishlist
     }
   return (
     <ECommerceContext.Provider value={value}>

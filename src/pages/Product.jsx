@@ -3,41 +3,39 @@ import { Link, useParams } from "react-router-dom";
 import { useECommerce } from "../context/ECommerceProvider";
 import { motion } from "motion/react";
 import RelatedProduct from "../components/common/RelatedProduct";
-import { 
-  Home, 
-  ShoppingBag, 
-  Heart, 
-  Truck, 
-  RotateCcw, 
-  Shield, 
+import {
+  Home,
+  ShoppingBag,
+  Heart,
+  Truck,
+  RotateCcw,
+  Shield,
   ChevronRight,
-  Star,
   Minus,
   Plus,
-  Check
+  Check,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
 const Product = () => {
   const { id } = useParams();
-  const { products,addToCart,cartCount, removeItemFromCart } = useECommerce();
+  const { products, addToCart, removeItemFromCart, cartItems } = useECommerce();
+
   const [thumbnails, setThumbnails] = useState("");
   const [productData, setProductData] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
+
   const sizes = ["S", "M", "L", "XL", "XXL", "XXXL"];
 
   useEffect(() => {
-    const fetchData = () => {
-      const productCopy = products.find((item) => item._id === id);
-      if (productCopy) {
-        setProductData(productCopy);
-        setThumbnails(productCopy?.image[0]);
-      }
-    };
-    fetchData();
+    const productCopy = products.find((item) => item._id === id);
+    if (productCopy) {
+      setProductData(productCopy);
+      setThumbnails(productCopy.image[0]);
+    }
   }, [id, products]);
 
-  if (productData === null) {
+  if (!productData) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] flex-col">
         <motion.div
@@ -45,247 +43,193 @@ const Product = () => {
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
         />
-        <p className="mt-4 text-gray-500 text-lg font-medium">Loading product...</p>
+        <p className="mt-4 text-gray-500 text-lg font-medium">
+          Loading product...
+        </p>
       </div>
     );
   }
 
-  // const handleSizeSelect = (s) => {
-  //   if (selectedSize === s) {
-  //     setSelectedSize(null);
-  //     setSize([]);
-  //   } else {
-  //     setSelectedSize(s);
-  //     setSize([s]);
-  //   }
-  // };
-
+  const quantity = cartItems?.[productData._id]?.[selectedSize] || 0;
 
   return (
     <>
       {/* Banner */}
-      <div className='relative bg-[url("/productBG.jpg")] bg-cover bg-center bg-no-repeat w-full h-[35vh] md:h-[45vh] flex items-center justify-center px-6'>
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/50"></div>
+      <div className='relative bg-[url("/productBG.jpg")] bg-cover bg-center h-[40vh] flex items-center justify-center'>
+        <div className="absolute inset-0 bg-black/60"></div>
 
         <motion.div
+          className="relative z-10 text-center text-white px-4"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          className="relative z-10 max-w-3xl text-center text-white"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#1E3A8A]/30 backdrop-blur-sm rounded-full text-sm mb-4">
-            <ShoppingBag size={14} />
-            <span>Product Details</span>
-          </div>
-          <h1 className="text-3xl md:text-5xl font-bold mb-4">
-            {productData.name}
-          </h1>
-          <p className="text-sm md:text-base text-gray-200 leading-relaxed max-w-2xl mx-auto">
-            Explore product images, sizes, prices, and descriptions. Make informed purchases quickly and easily.
-          </p>
+          <h1 className="text-4xl font-bold">{productData.name}</h1>
         </motion.div>
       </div>
 
       <div className="bg-gray-50">
-        <motion.div
-          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          {/* Breadcrumbs */}
-          <motion.nav
-            className="flex items-center gap-2 text-sm text-gray-500 mb-8"
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          >
-            <Link to="/" className="hover:text-[#1E3A8A] transition flex items-center gap-1">
-              <Home size={14} />
-              Home
-            </Link>
-            <ChevronRight size={12} />
-            <span>Products</span>
-            <ChevronRight size={12} />
-            <Link
-              to={`/${productData.category?.toLowerCase().replace(/\s+/g, '-')}`}
-              className="hover:text-[#1E3A8A] transition capitalize"
-            >
-              {productData.category}
-            </Link>
-            <ChevronRight size={12} />
-            <span className="text-[#1E3A8A] font-medium truncate max-w-[200px]">{productData.name}</span>
-          </motion.nav>
+        <div className="max-w-7xl mx-auto px-4 py-10">
 
-          <div className="flex flex-col lg:flex-row gap-12">
-            {/* Product Images */}
-            <motion.div
-              className="lg:w-1/2"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-            >
-              <div className="flex gap-4">
-                {/* Thumbnails */}
-                <div className="flex flex-col gap-3">
-                  {productData.image.map((image, index) => (
-                    <motion.button
-                      key={index}
-                      onClick={() => setThumbnails(image)}
-                      className={`border-2 rounded-xl overflow-hidden cursor-pointer transition-all duration-200 ${
-                        thumbnails === image
-                          ? "border-[#1E3A8A] shadow-md"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      <img
-                        src={image}
-                        alt={`Thumbnail ${index + 1}`}
-                        className="w-16 h-16 md:w-20 md:h-20 object-cover"
-                      />
-                    </motion.button>
-                  ))}
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+            <Link to="/" className="hover:text-[#1E3A8A] hover:underline flex items-center gap-1">
+              <Home size={14} /> Home
+            </Link>
+            <ChevronRight size={12} />
+            <span>{productData.category}</span>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-10">
+
+            {/* Images */}
+            <div className="lg:w-1/2 flex gap-4">
+              
+              {/* Thumbnails */}
+              <div className="flex flex-col gap-3">
+                {productData.image.map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setThumbnails(img)}
+                    className={`border-2 rounded-lg overflow-hidden ${
+                      thumbnails === img ? "border-[#1E3A8A]" : "border-gray-200"
+                    }`}
+                  >
+                    <img src={img} className="w-16 h-16 object-cover" />
+                  </button>
+                ))}
+              </div>
+
+              {/* Main Image */}
+              <div className="flex-1 bg-white rounded-xl overflow-hidden border">
+                <img
+                  src={thumbnails}
+                  className="w-full object-cover hover:scale-110 transition duration-500"
+                />
+              </div>
+            </div>
+
+            {/* Details */}
+            <div className="lg:w-1/2">
+              <div className="bg-white p-6 rounded-xl shadow-sm space-y-6">
+
+                {/* Title */}
+                <h2 className="text-2xl font-bold">{productData.name}</h2>
+
+                {/* Price */}
+                <div className="flex items-center gap-3">
+                  {productData.old_price && (
+                    <span className="line-through text-gray-400">
+                      ₵{productData.old_price}
+                    </span>
+                  )}
+                  <span className="text-3xl font-extrabold text-[#1E3A8A]">
+                    ₵{productData.new_price}
+                  </span>
                 </div>
 
-                {/* Main Image */}
-                <motion.div
-                  className="flex-1 bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4, duration: 0.6 }}
-                >
-                  <img
-                    src={thumbnails}
-                    alt={productData.name}
-                    className="w-full h-auto object-cover transition-transform duration-500 hover:scale-105"
-                  />
-                </motion.div>
-              </div>
-            </motion.div>
-
-            {/* Product Details */}
-            <motion.div
-              className="lg:w-1/2"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
-            >
-              <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
-
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-3">
-                  {productData.name}
-                </h1>
-
-                <div className="flex items-center gap-3 mb-4">
-                  {productData.old_price && (
-                    <p className="text-gray-400 line-through text-lg">
-                      ₵{productData.old_price.toFixed(2)}
-                    </p>
-                  )}
-                  <p className="text-3xl font-bold text-[#1E3A8A]">
-                    ₵{productData.new_price.toFixed(2)}
+                {/* Info */}
+                <div className="bg-gray-50 p-4 rounded-lg space-y-2 text-sm">
+                  <p className="flex gap-2 items-center">
+                    <Truck size={14} /> Free delivery
+                  </p>
+                  <p className="flex gap-2 items-center">
+                    <RotateCcw size={14} /> Easy returns
+                  </p>
+                  <p className="flex gap-2 items-center">
+                    <Shield size={14} /> Warranty included
                   </p>
                 </div>
 
-                {/* Delivery Info */}
-                <div className="border-t border-b border-gray-100 py-4 mb-6 space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Truck size={16} className="text-[#1E3A8A]" />
-                    <span>Free delivery on orders over ₵500</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <RotateCcw size={16} className="text-[#1E3A8A]" />
-                    <span>30-day easy returns</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Shield size={16} className="text-[#1E3A8A]" />
-                    <span>1-year warranty</span>
-                  </div>
-                </div>
-
-                {/* Size Selection */}
-                <div className="mb-6">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Select Size</h3>
-                  <div className="flex flex-wrap gap-3">
-                    {sizes.map((s, i) => (
+                {/* Sizes */}
+                <div>
+                  <p className="mb-2 font-medium">Select Size</p>
+                  <div className="flex gap-3 flex-wrap">
+                    {sizes.map((s) => (
                       <button
-                        key={i}
-                        onClick={() => setSelectedSize((prev) => prev === s ? null: s)}
-                        className={`w-12 h-12 text-sm font-medium rounded-xl border-2 transition-all duration-200 
-                          ${
-                            selectedSize === s
-                              ? "bg-[#1E3A8A] text-white border-[#1E3A8A] shadow-md"
-                              : "bg-white text-gray-700 border-gray-200 hover:border-[#1E3A8A] hover:shadow-sm"
-                          }`}
+                        key={s}
+                        onClick={() =>
+                          setSelectedSize((prev) => (prev === s ? null : s))
+                        }
+                        className={`relative w-12 h-12 rounded-lg border ${
+                          selectedSize === s
+                            ? "bg-[#1E3A8A] text-white"
+                            : "bg-white"
+                        }`}
                       >
                         {s}
+                        {selectedSize === s && (
+                          <Check size={12} className="absolute top-1 right-1" />
+                        )}
                       </button>
                     ))}
                   </div>
                 </div>
 
                 {/* Quantity */}
-                <div className="mb-6">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Quantity</h3>
+                <div>
+                  <p className="mb-2 font-medium">Quantity</p>
                   <div className="flex items-center gap-3">
                     <button
-                      onClick={() => removeItemFromCart(productData._id, selectedSize)}
-                      className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition"
+                      onClick={() =>
+                        removeItemFromCart(productData._id, selectedSize)
+                      }
+                      className="w-10 h-10 border rounded flex items-center justify-center"
                     >
                       <Minus size={16} />
                     </button>
-                    <span className="w-12 text-center text-lg font-medium">{}</span>
+
+                    <span className="w-10 text-center font-semibold">
+                      {quantity}
+                    </span>
+
                     <button
                       onClick={() => {
-                        if(!selectedSize){
-                          toast.error("Please select product size");
-                          return
+                        if (!selectedSize) {
+                          toast.error("Select size");
+                          return;
                         }
-                        addToCart(productData._id, selectedSize)
+                        addToCart(productData._id, selectedSize);
                       }}
-                      className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition"
+                      className="w-10 h-10 border rounded flex items-center justify-center"
                     >
                       <Plus size={16} />
                     </button>
                   </div>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 mt-6">
-                  <button className="flex-1 py-3.5 bg-gray-100 text-gray-800 font-semibold rounded-xl hover:bg-gray-200 transition-all duration-200 flex items-center justify-center gap-2">
+                {/* Buttons */}
+                <div className="flex items-center gap-4">
+                  <button className="flex-1 flex items-center justify-center mx-auto  bg-gray-100 py-3 rounded-lg">
+                  
                     <Heart size={18} />
-                    Add to Wishlist
                   </button>
-                  <button onClick={() => addToCart(productData._id, selectedSize)} className="flex-1 py-3.5 bg-[#1E3A8A] text-white font-semibold rounded-xl hover:bg-[#2E4A9A] transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-                    <ShoppingBag size={18} />
+
+                  <button
+                    onClick={() => addToCart(productData._id, selectedSize)}
+                    className={`flex-1 py-3 rounded-lg text-white ${
+                      selectedSize
+                        ? "bg-[#1E3A8A]"
+                        : "bg-gray-300 cursor-not-allowed"
+                    }`}
+                  >
                     Add to Cart
                   </button>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
 
-          {/* Product Description Section */}
-          <motion.div
-            className="mt-12 bg-white rounded-2xl shadow-lg p-6 md:p-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-          >
-            <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <div className="w-1 h-6 bg-[#1E3A8A] rounded-full"></div>
-              About This Product
-            </h2>
-            <p className="text-gray-600 leading-relaxed">
-              {productData.description}
-            </p>
-          </motion.div>
-        </motion.div>
+          {/* Description */}
+          <div className="mt-10 bg-white p-6 rounded-xl shadow-sm">
+            <h3 className="font-bold mb-2">Description</h3>
+            <p className="text-gray-600">{productData.description}</p>
+          </div>
 
-        {/* Related Products */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-          <RelatedProduct category={productData.category} />
+          {/* Related */}
+          <div className="mt-10">
+            <RelatedProduct category={productData.category} />
+          </div>
+
         </div>
       </div>
     </>

@@ -18,7 +18,7 @@ const Navbar = () => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [userMenu, setUserMenu] = useState(false);
-  const {cartCount} = useECommerce();
+  const {cartCount, addToWishlist} = useECommerce();
   const navigate = useNavigate()
 
   const isLoggedIn = true; // simulate auth
