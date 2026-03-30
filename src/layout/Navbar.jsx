@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
   Menu,
@@ -12,11 +12,14 @@ import {
   Package,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useECommerce } from "../context/ECommerceProvider";
 
 const Navbar = () => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [userMenu, setUserMenu] = useState(false);
+  const {cartCount} = useECommerce();
+  const navigate = useNavigate()
 
   const isLoggedIn = true; // simulate auth
 
@@ -28,7 +31,7 @@ const Navbar = () => {
       children: [
         { name: "Men", path: "/men" },
         { name: "Women", path: "/women" },
-        { name: "Kids", path: "/kids" },
+        { name: "Kids", path: "/kid" },
         { name: "Electronics", path: "/electronics" },
         { name: "Shoes", path: "/shoes" },
       ],
@@ -141,10 +144,12 @@ const Navbar = () => {
             </div>
 
             {/* Cart */}
-            <div className="relative cursor-pointer group">
+            <div onClick={() =>{navigate("/cart")
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            }} className="relative cursor-pointer group">
               <ShoppingBag className="w-5 h-5 text-gray-600 group-hover:text-[#1E3A8A] transition-colors" />
               <span className="absolute -top-2 -right-2 text-xs bg-[#1E3A8A] text-white w-4.5 h-4.5 flex items-center justify-center rounded-full shadow-md">
-                3
+                {cartCount}
               </span>
             </div>
 

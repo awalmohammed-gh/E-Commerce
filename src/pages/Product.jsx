@@ -16,14 +16,13 @@ import {
   Plus,
   Check
 } from "lucide-react";
+import toast from "react-hot-toast";
 
 const Product = () => {
   const { id } = useParams();
-  const { products,addToCart } = useECommerce();
+  const { products,addToCart,cartCount, removeItemFromCart } = useECommerce();
   const [thumbnails, setThumbnails] = useState("");
   const [productData, setProductData] = useState(null);
-  const [size, setSize] = useState([]);
-  const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState(null);
   const sizes = ["S", "M", "L", "XL", "XXL", "XXXL"];
 
@@ -51,18 +50,16 @@ const Product = () => {
     );
   }
 
-  const handleSizeSelect = (s) => {
-    if (selectedSize === s) {
-      setSelectedSize(null);
-      setSize([]);
-    } else {
-      setSelectedSize(s);
-      setSize([s]);
-    }
-  };
+  // const handleSizeSelect = (s) => {
+  //   if (selectedSize === s) {
+  //     setSelectedSize(null);
+  //     setSize([]);
+  //   } else {
+  //     setSelectedSize(s);
+  //     setSize([s]);
+  //   }
+  // };
 
-  const incrementQuantity = () => setQuantity(prev => prev + 1);
-  const decrementQuantity = () => setQuantity(prev => (prev > 1 ? prev - 1 : 1));
 
   return (
     <>
@@ -175,15 +172,6 @@ const Product = () => {
               transition={{ delay: 0.5, duration: 0.5 }}
             >
               <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
-                {/* Rating */}
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={16} className="fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                  <span className="text-sm text-gray-500">(128 reviews)</span>
-                </div>
 
                 <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-3">
                   {productData.name}
@@ -223,7 +211,7 @@ const Product = () => {
                     {sizes.map((s, i) => (
                       <button
                         key={i}
-                        onClick={() => handleSizeSelect(s)}
+                        onClick={() => setSelectedSize((prev) => prev === s ? null: s)}
                         className={`w-12 h-12 text-sm font-medium rounded-xl border-2 transition-all duration-200 
                           ${
                             selectedSize === s
@@ -242,14 +230,20 @@ const Product = () => {
                   <h3 className="text-sm font-semibold text-gray-700 mb-3">Quantity</h3>
                   <div className="flex items-center gap-3">
                     <button
-                      onClick={decrementQuantity}
+                      onClick={() => removeItemFromCart(productData._id, selectedSize)}
                       className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition"
                     >
                       <Minus size={16} />
                     </button>
-                    <span className="w-12 text-center text-lg font-medium">{quantity}</span>
+                    <span className="w-12 text-center text-lg font-medium">{}</span>
                     <button
-                      onClick={() => addToCart(productData._id, size)}
+                      onClick={() => {
+                        if(!selectedSize){
+                          toast.error("Please select product size");
+                          return
+                        }
+                        addToCart(productData._id, selectedSize)
+                      }}
                       className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition"
                     >
                       <Plus size={16} />
@@ -263,7 +257,7 @@ const Product = () => {
                     <Heart size={18} />
                     Add to Wishlist
                   </button>
-                  <button onClick={() => addToCart(productData._id, size)} className="flex-1 py-3.5 bg-[#1E3A8A] text-white font-semibold rounded-xl hover:bg-[#2E4A9A] transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                  <button onClick={() => addToCart(productData._id, selectedSize)} className="flex-1 py-3.5 bg-[#1E3A8A] text-white font-semibold rounded-xl hover:bg-[#2E4A9A] transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
                     <ShoppingBag size={18} />
                     Add to Cart
                   </button>

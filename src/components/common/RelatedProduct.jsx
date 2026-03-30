@@ -11,7 +11,7 @@ const RelatedProduct = ({ category }) => {
   }, [products, category]);
 
   return (
-    <div className="my-12 px-4 sm:px-[4vw]">
+    <div className="my-12 px-4 sm:px-8">
       {/* Heading */}
       <motion.h2 
         className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center"

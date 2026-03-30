@@ -88,7 +88,7 @@ const CategoryPage = () => {
         {/* Header with Count */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+            <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2 capitalize">
               <Sparkles size={24} className="text-[#1E3A8A]" />
               {categoryName} Products
             </h2>
