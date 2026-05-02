@@ -1,6 +1,7 @@
-import { createContext, useContext, useMemo, useState } from "react"
-import { products } from "../assets/all_products"
+import { createContext, use, useContext, useEffect, useMemo, useState } from "react"
+// import { products } from "../assets/all_products"
 import toast from "react-hot-toast";
+import { listProduct } from "../api/frontApis";
 
 
 const ECommerceContext = createContext()
@@ -8,7 +9,8 @@ export const ECommerceProvider = ({children}) => {
 
   const [cartItems, setCartItems] = useState({});
   const [addWishlist, setAddWishlist] = useState([])
-    const [isLoggedIn, setIsLoggedIn] = useState(true)
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [products, setProducts] = useState([])
 
 
 
@@ -83,6 +85,22 @@ const removeFromWishlist = (id) =>{
     return total + price;
   },0)
  }
+
+
+ //fetch all product from backend
+
+ const fetchProduct = async() =>{
+  try {
+    const {data} = await listProduct();
+    data.success ? setProducts(data.products) : toast.error(data.message)
+  } catch (error) {
+    console.error(error);
+  }
+ }
+
+ useEffect(() =>{
+   fetchProduct()
+ },[])
 
 
     const value = {

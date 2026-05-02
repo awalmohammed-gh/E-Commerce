@@ -118,7 +118,7 @@ export const products = [
     image: [p1_img],
     new_price: 80.0,
     old_price: 100.0,
-    description:
+    description: 
       "The Floral Flutter Sleeve Peplum Blouse is a charming addition to any wardrobe, featuring delicate floral patterns that evoke a sense of springtime elegance. Crafted with lightweight, breathable fabric, this blouse offers a flattering peplum hem that accentuates the waist. The flutter sleeves add a playful touch, perfect for both casual outings and semi-formal events. Pair it with tailored trousers or a sleek skirt for a polished look.",
     bestseller: true,
     sizes: ["S", "L", "XL", "XXL"],
