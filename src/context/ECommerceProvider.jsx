@@ -1,7 +1,7 @@
-import { createContext, use, useContext, useEffect, useMemo, useState } from "react"
+import { createContext, useContext, useEffect, useMemo, useState } from "react"
 // import { products } from "../assets/all_products"
 import toast from "react-hot-toast";
-import { listProduct } from "../api/frontApis";
+import { getUserData, isUserAuth, listProduct } from "../api/frontApis";
 
 
 const ECommerceContext = createContext()
@@ -10,7 +10,20 @@ export const ECommerceProvider = ({children}) => {
   const [cartItems, setCartItems] = useState({});
   const [addWishlist, setAddWishlist] = useState([])
   const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [products, setProducts] = useState([])
+  const [products, setProducts] = useState([]);
+  const [userData, setUserData] = useState(null);
+
+
+  //function to get user data
+  const fetchUserData = async() =>{
+     try {
+      const {data} = await getUserData();
+       data.success ? setUserData(data.userData) : toast.error(data.message)
+     } catch (error) {
+      console.error(error);
+      setUserData(null)
+     }
+  }
 
 
 
@@ -98,6 +111,23 @@ const removeFromWishlist = (id) =>{
   }
  }
 
+
+ //function to see if the user is auth
+useEffect(() =>{
+   const checkAuth = async () => {
+     try {
+       const { data } = await isUserAuth();
+       if (data.success) {
+         await fetchUserData();
+       }
+     } catch (error) {
+       setUserData(null);
+       console.error(error);
+     }
+   };
+  checkAuth()
+},[])
+
  useEffect(() =>{
    fetchProduct()
  },[])
@@ -114,7 +144,9 @@ const removeFromWishlist = (id) =>{
       removeFromWishlist,
       addWishlist,
       setAddWishlist,
-      isLoggedIn, setIsLoggedIn
+      isLoggedIn, setIsLoggedIn,
+      userData,
+      fetchUserData
     }
   return (
     <ECommerceContext.Provider value={value}>

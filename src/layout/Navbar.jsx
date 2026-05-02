@@ -13,12 +13,14 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useECommerce } from "../context/ECommerceProvider";
+import { logoutAccount } from "../api/frontApis";
+import toast from "react-hot-toast";
 
 const Navbar = ({onAuthClick}) => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [userMenu, setUserMenu] = useState(false);
-  const { cartCount, addWishlist, isLoggedIn, setIsLoggedIn } = useECommerce();
+  const { cartCount, addWishlist, isLoggedIn, setIsLoggedIn, userData } = useECommerce();
   const navigate = useNavigate();
 
 
@@ -38,6 +40,20 @@ const Navbar = ({onAuthClick}) => {
     { name: "Blog", path: "/blog" },
     { name: "Contact", path: "/contact" },
   ];
+
+  const userLogout = async() =>{
+     try {
+      const {data} = await logoutAccount();
+      if(data.success){
+        toast.success(data.message);
+        setIsLoggedIn(false)
+      }else{
+        toast.error(data.message)
+      }
+     } catch (error) {
+      console.error(error);
+     }
+  }
 
   // useEffect(() => {
   //   const handleScroll = () => {
@@ -166,7 +182,7 @@ const Navbar = ({onAuthClick}) => {
                 className="p-2 rounded-full hover:bg-gray-100 transition-colors relative"
               >
                 <User2 className="w-5 h-5 text-gray-600" />
-                {isLoggedIn && (
+                {userData && (
                   <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white"></span>
                 )}
               </button>
@@ -180,14 +196,14 @@ const Navbar = ({onAuthClick}) => {
                     className="absolute right-0 mt-3 bg-white shadow-2xl rounded-2xl w-56 py-2 z-50 border border-gray-100"
                   >
                     <div className="absolute -top-2 right-4 w-4 h-4 bg-white rotate-45 border-t border-l border-gray-100"></div>
-                    {isLoggedIn ? (
+                    {userData ? (
                       <>
                         <div className="px-4 py-3 border-b border-gray-100 mb-1">
                           <p className="text-sm font-semibold text-gray-800">
-                            John Doe
+                            {userData.fullName}
                           </p>
                           <p className="text-xs text-gray-500">
-                            john@example.com
+                            {userData.email}
                           </p>
                         </div>
                         <NavLink
@@ -203,7 +219,7 @@ const Navbar = ({onAuthClick}) => {
                           <Package size={16} /> My Orders
                         </NavLink>
                         <button
-                          onClick={() => setIsLoggedIn(false)}
+                          onClick={() => userLogout()}
                           className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
                         >
                           <LogOut size={16} /> Logout
