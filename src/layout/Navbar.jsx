@@ -20,7 +20,7 @@ const Navbar = ({onAuthClick}) => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [userMenu, setUserMenu] = useState(false);
-  const { cartCount, addWishlist, isLoggedIn, setIsLoggedIn, userData } = useECommerce();
+  const { cartCount, addWishlist, user, setIsLoggedIn } = useECommerce();
   const navigate = useNavigate();
 
 
@@ -41,20 +41,6 @@ const Navbar = ({onAuthClick}) => {
     { name: "Contact", path: "/contact" },
   ];
 
-  const userLogout = async() =>{
-     try {
-      const {data} = await logoutAccount();
-      if(data.success){
-        toast.success(data.message);
-        setIsLoggedIn(false)
-      }else{
-        toast.error(data.message)
-      }
-     } catch (error) {
-      console.error(error);
-     }
-  }
-
   // useEffect(() => {
   //   const handleScroll = () => {
   //     setIsScrolled(window.scrollY > 50);
@@ -63,6 +49,23 @@ const Navbar = ({onAuthClick}) => {
   //   window.addEventListener("scroll", handleScroll);
   //   return () => window.removeEventListener("scroll", handleScroll);
   // }, []);
+
+  
+   //function to log user out,
+    const userLogout = async () => {
+      try {
+        const { data } = await logoutAccount();
+        if (data.success) {
+          toast.success(data.message);
+          setIsLoggedIn(false);
+          window.location.href = "/";
+        } else {
+          toast.error(data.message);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
   return (
     <header
@@ -74,9 +77,9 @@ const Navbar = ({onAuthClick}) => {
           <NavLink to="/" className="group">
             <h1 className="text-2xl font-bold tracking-tight">
               <span className="text-[#1E3A8A]">Shop</span>
-              <span className="text-gray-800">Zone</span>
+              <span className="text-gray-800">Smart</span>
             </h1>
-            <div className="h-0.5 w-0 group-hover:w-full bg-gradient-to-r from-[#1E3A8A] to-blue-400 transition-all duration-300"></div>
+            <div className="h-0.5 w-0 group-hover:w-full bg-linear-to-r from-[#1E3A8A] to-blue-400 transition-all duration-300"></div>
           </NavLink>
 
           {/* DESKTOP NAV */}
@@ -179,11 +182,17 @@ const Navbar = ({onAuthClick}) => {
             <div className="relative">
               <button
                 onClick={() => setUserMenu(!userMenu)}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors relative"
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors relative cursor-pointer"
               >
-                <User2 className="w-5 h-5 text-gray-600" />
-                {userData && (
-                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white"></span>
+                {user ? (
+                  <div className="bg-[#1E3A8A] h-8 w-8 flex items-center justify-center rounded-full shadow-md font-bold text-white">
+                    {user.fullName[0].toUpperCase()}
+                  </div>
+                ) : (
+                  <User2 className="w-5 h-5 text-gray-600" />
+                )}
+                {user && (
+                  <span className="absolute top-0 right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
                 )}
               </button>
 
@@ -196,23 +205,23 @@ const Navbar = ({onAuthClick}) => {
                     className="absolute right-0 mt-3 bg-white shadow-2xl rounded-2xl w-56 py-2 z-50 border border-gray-100"
                   >
                     <div className="absolute -top-2 right-4 w-4 h-4 bg-white rotate-45 border-t border-l border-gray-100"></div>
-                    {userData ? (
+                    {user ? (
                       <>
                         <div className="px-4 py-3 border-b border-gray-100 mb-1">
                           <p className="text-sm font-semibold text-gray-800">
-                            {userData.fullName}
+                            {user.fullName}
                           </p>
-                          <p className="text-xs text-gray-500">
-                            {userData.email}
-                          </p>
+                          <p className="text-xs text-gray-500">{user.email}</p>
                         </div>
                         <NavLink
+                          onClick={() => userMenu(false)}
                           to="/account"
                           className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-[#1E3A8A] transition-colors"
                         >
                           <User size={16} /> My Account
                         </NavLink>
                         <NavLink
+                          onClick={() => userMenu(false)}
                           to="/order"
                           className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-[#1E3A8A] transition-colors"
                         >

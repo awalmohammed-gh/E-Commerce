@@ -19,7 +19,15 @@ import toast from "react-hot-toast";
 
 const Product = () => {
   const { id } = useParams();
-  const { products, addToCart, removeItemFromCart, cartItems, addToWishlist, addWishlist, setAddWishlist } = useECommerce();
+  const {
+    products,
+    addToCart,
+    removeItemFromCart,
+    cartItems,
+    addWishlist,
+    setAddWishlist,
+    updateUserCart,
+  } = useECommerce();
 
   const [thumbnails, setThumbnails] = useState("");
   const [productData, setProductData] = useState(null);
@@ -69,10 +77,12 @@ const Product = () => {
 
       <div className="bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 py-10">
-
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-            <Link to="/" className="hover:text-[#1E3A8A] hover:underline flex items-center gap-1">
+            <Link
+              to="/"
+              className="hover:text-[#1E3A8A] hover:underline flex items-center gap-1"
+            >
               <Home size={14} /> Home
             </Link>
             <ChevronRight size={12} />
@@ -80,10 +90,8 @@ const Product = () => {
           </div>
 
           <div className="flex flex-col lg:flex-row gap-10">
-
             {/* Images */}
             <div className="lg:w-1/2 flex gap-4">
-              
               {/* Thumbnails */}
               <div className="flex flex-col gap-3">
                 {productData.image.map((img, i) => (
@@ -91,7 +99,9 @@ const Product = () => {
                     key={i}
                     onClick={() => setThumbnails(img)}
                     className={`border-2 rounded-lg overflow-hidden ${
-                      thumbnails === img ? "border-[#1E3A8A]" : "border-gray-200"
+                      thumbnails === img
+                        ? "border-[#1E3A8A]"
+                        : "border-gray-200"
                     }`}
                   >
                     <img src={img} className="w-16 h-16 object-cover" />
@@ -103,7 +113,7 @@ const Product = () => {
               <div className="flex-1 bg-white rounded-xl overflow-hidden border">
                 <img
                   src={thumbnails}
-                  className="w-full object-cover hover:scale-110 transition duration-500"
+                  className="w-full h-full object-cover hover:scale-110 transition duration-500"
                 />
               </div>
             </div>
@@ -111,7 +121,6 @@ const Product = () => {
             {/* Details */}
             <div className="lg:w-1/2">
               <div className="bg-white p-6 rounded-xl shadow-sm space-y-6">
-
                 {/* Title */}
                 <h2 className="text-2xl font-bold">{productData.name}</h2>
 
@@ -199,13 +208,27 @@ const Product = () => {
 
                 {/* Buttons */}
                 <div className="flex items-center gap-4">
-                  <button onClick={() => setAddWishlist((prev)  => prev.includes(productData._id) ? prev.filter((wish) => wish !== productData._id) : [...prev, productData._id])} className={`flex-1 flex items-center justify-center mx-auto  bg-gray-100 py-3 rounded-lg ${addWishlist.includes(productData._id) ? "bg-red-600 text-white":""}`}>
-                  
+                  <button
+                    onClick={() =>
+                      setAddWishlist((prev) =>
+                        prev.includes(productData._id)
+                          ? prev.filter((wish) => wish !== productData._id)
+                          : [...prev, productData._id],
+                      )
+                    }
+                    className={`flex-1 flex items-center justify-center mx-auto  bg-gray-100 py-3 rounded-lg ${addWishlist.includes(productData._id) ? "bg-red-600 text-white" : ""}`}
+                  >
                     <Heart size={18} />
                   </button>
 
                   <button
-                    onClick={() => addToCart(productData._id, selectedSize)}
+                    onClick={() => {
+                      if (!selectedSize) {
+                        toast.error("Select size");
+                        return;
+                      }
+                      addToCart(productData._id, selectedSize);
+                    }}
                     className={`flex-1 py-3 rounded-lg text-white ${
                       selectedSize
                         ? "bg-[#1E3A8A]"
@@ -229,7 +252,6 @@ const Product = () => {
           <div className="mt-10">
             <RelatedProduct category={productData.category} />
           </div>
-
         </div>
       </div>
     </>

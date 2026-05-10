@@ -307,7 +307,7 @@ const Cart = () => {
                   if(cartData.length === 0) return;
                   navigate("/checkout")
                 }}
-                 className={`w-full mt-6 bg-gray-400 text-white py-3 rounded-xl font-semibold hover:bg-[#2E4A9A] transition ${cartData.length > 1 && "bg-[#1E3A8A] cursor-not-allowed"}`}>
+                 className={`w-full mt-6 bg-gray-400 text-white py-3 rounded-xl font-semibold hover:bg-[#2E4A9A] transition ${cartData.length > 1 && "bg-[#1E3A8A] cursor-pointer"}`}>
                   Proceed to Checkout
                 </button>
 

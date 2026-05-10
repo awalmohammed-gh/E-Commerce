@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { useECommerce } from "../context/ECommerceProvider";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Building, 
-  Navigation, 
-  CreditCard, 
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Building,
+  Navigation,
+  CreditCard,
   Smartphone,
   Truck,
   Package,
@@ -17,11 +17,12 @@ import {
   ArrowLeft,
   ChevronRight,
   CheckCircle,
-  ShoppingBag
+  ShoppingBag,
 } from "lucide-react";
+import { placeOrders } from "../api/frontApis";
 
 const Checkout = () => {
-  const { cartItems, products, totalAmount } = useECommerce();
+  const { cartItems, products, totalAmount, setCartItems } = useECommerce();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -35,7 +36,6 @@ const Checkout = () => {
     landmark: "",
   });
 
-  const [checkout, setCheckout] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -48,92 +48,76 @@ const Checkout = () => {
     }));
   };
 
-  // Prepare cart data
-  useEffect(() => {
-    const pushToCart = [];
-    for (let itemId in cartItems) {
-      for (let size in cartItems[itemId]) {
-        if (cartItems[itemId][size] > 0) {
-          pushToCart.push({
-            id: itemId,
-            size,
-            quantity: cartItems[itemId][size],
-          });
-        }
-      }
-    }
-    setCheckout(pushToCart);
-  }, [cartItems]);
-
   // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+   e.preventDefault();
 
-    if (!formData.firstName || !formData.lastName || !formData.phone || !formData.address || !formData.city || !formData.region) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
+   try {
+     setIsSubmitting(true);
 
-    if (checkout.length === 0) {
-      toast.error("Your cart is empty");
-      return;
-    }
+     const orderItem = [];
 
-    setIsSubmitting(true);
+     for (let itemId in cartItems) {
+       for (let size in cartItems[itemId]) {
+         if (cartItems[itemId][size] > 0) {
+           const orderInfo = structuredClone(
+             products.find((product) => product._id === itemId),
+           );
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+           if (orderInfo) {
+             orderInfo.size = size;
+             orderInfo.quantity = cartItems[itemId][size];
+             orderItem.push(orderInfo);
+           }
+         }
+       }
+     }
 
-    const orderData = {
-      customer: { ...formData },
-      payment: { method: paymentMethod },
-      items: checkout,
-      totalAmount: totalAmount(),
-    };
+     const orderData = {
+       address: formData,
+       items: orderItem,
+       amount: totalAmount(),
+     };
 
-    console.log("Order Submitted:", orderData);
-    toast.success("Order submitted successfully!");
-    setIsSubmitting(false);
-    // TODO: send orderData to backend / payment gateway
-  };
+     console.log("Sending:", orderData);
 
+     if (paymentMethod === "cod") {
+       const { data } = await placeOrders(orderData);
 
-  if (checkout.length === 0) {
-    return (
-      <div className="bg-gray-50 min-h-screen flex items-center justify-center px-4">
-        <div className="text-center max-w-md">
-          <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <ShoppingBag size={40} className="text-gray-400" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Your cart is empty</h2>
-          <p className="text-gray-500 mb-6">
-            Add some items to your cart before checking out.
-          </p>
-          <Link
-            to="/shop"
-            className="inline-flex items-center gap-2 bg-[#1E3A8A] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#2E4A9A] transition-colors"
-          >
-            <ArrowLeft size={18} />
-            Continue Shopping
-          </Link>
-        </div>
-      </div>
-    );
-  }
+       console.log("Response:", data);
+
+       if (data.success) {
+         setCartItems({});
+         navigate("/order");
+         toast.success(data.message);
+       } else {
+         toast.error(data.message);
+       }
+     }
+   } catch (error) {
+     console.error("Checkout error:", error);
+     toast.error("Order failed");
+   } finally {
+     setIsSubmitting(false);
+   }
+ };
 
   return (
     <div className="bg-gray-50 min-h-screen py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-            <Link to="/cart" className="hover:text-[#1E3A8A] transition">Cart</Link>
+            <Link to="/cart" className="hover:text-[#1E3A8A] transition">
+              Cart
+            </Link>
             <ChevronRight size={14} />
             <span className="text-[#1E3A8A] font-medium">Checkout</span>
           </div>
           <h1 className="text-3xl font-bold text-gray-800">Checkout</h1>
-          <p className="text-gray-500 mt-1">Complete your order information below</p>
+          <p className="text-gray-500 mt-1">
+            Complete your order information below
+          </p>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
@@ -145,7 +129,9 @@ const Checkout = () => {
                 <div className="p-2 bg-[#1E3A8A]/10 rounded-lg">
                   <Truck size={20} className="text-[#1E3A8A]" />
                 </div>
-                <h2 className="text-xl font-semibold text-gray-700">Shipping Details</h2>
+                <h2 className="text-xl font-semibold text-gray-700">
+                  Shipping Details
+                </h2>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -154,7 +140,10 @@ const Checkout = () => {
                     First Name <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <User size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <User
+                      size={16}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    />
                     <input
                       type="text"
                       name="firstName"
@@ -162,7 +151,9 @@ const Checkout = () => {
                       value={formData.firstName}
                       onChange={handleChange}
                       className={`w-full pl-10 pr-4 py-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all ${
-                        !formData.firstName ? "border-gray-200" : "border-gray-300"
+                        !formData.firstName
+                          ? "border-gray-200"
+                          : "border-gray-300"
                       }`}
                     />
                   </div>
@@ -173,7 +164,10 @@ const Checkout = () => {
                     Last Name <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <User size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <User
+                      size={16}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    />
                     <input
                       type="text"
                       name="lastName"
@@ -186,9 +180,14 @@ const Checkout = () => {
                 </div>
 
                 <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
                   <div className="relative">
-                    <Mail size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <Mail
+                      size={16}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    />
                     <input
                       type="email"
                       name="email"
@@ -205,7 +204,10 @@ const Checkout = () => {
                     Phone Number <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <Phone size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <Phone
+                      size={16}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    />
                     <input
                       type="text"
                       name="phone"
@@ -222,7 +224,10 @@ const Checkout = () => {
                     Address <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <MapPin size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <MapPin
+                      size={16}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    />
                     <input
                       type="text"
                       name="address"
@@ -239,7 +244,10 @@ const Checkout = () => {
                     City <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <Building size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <Building
+                      size={16}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    />
                     <input
                       type="text"
                       name="city"
@@ -256,7 +264,10 @@ const Checkout = () => {
                     Region <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <Navigation size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <Navigation
+                      size={16}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    />
                     <input
                       type="text"
                       name="region"
@@ -269,9 +280,14 @@ const Checkout = () => {
                 </div>
 
                 <div className="md:col-span-2 relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Landmark (Optional)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Landmark (Optional)
+                  </label>
                   <div className="relative">
-                    <MapPin size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <MapPin
+                      size={16}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    />
                     <input
                       type="text"
                       name="landmark"
@@ -291,7 +307,9 @@ const Checkout = () => {
                 <div className="p-2 bg-[#1E3A8A]/10 rounded-lg">
                   <CreditCard size={20} className="text-[#1E3A8A]" />
                 </div>
-                <h2 className="text-xl font-semibold text-gray-700">Payment Method</h2>
+                <h2 className="text-xl font-semibold text-gray-700">
+                  Payment Method
+                </h2>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -313,8 +331,12 @@ const Checkout = () => {
                   <div className="flex items-center gap-2">
                     <Truck size={18} className="text-gray-600" />
                     <div>
-                      <p className="font-medium text-gray-800">Cash on Delivery</p>
-                      <p className="text-xs text-gray-500">Pay when you receive</p>
+                      <p className="font-medium text-gray-800">
+                        Cash on Delivery
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Pay when you receive
+                      </p>
                     </div>
                   </div>
                 </label>
@@ -346,17 +368,19 @@ const Checkout = () => {
 
               {paymentMethod === "momo" && (
                 <div className="mt-4 p-4 bg-blue-50 rounded-xl">
-                  <p className="text-sm text-blue-800">You will receive a payment prompt on your registered mobile money number.</p>
+                  <p className="text-sm text-blue-800">
+                    You will receive a payment prompt on your registered mobile
+                    money number.
+                  </p>
                 </div>
               )}
             </div>
 
             {/* Submit Button */}
             <button
-            onClick={() => navigate("/order")}
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3.5 bg-[#1E3A8A] text-white font-semibold rounded-xl hover:bg-[#2E4A9A] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-3.5 bg-[#1E3A8A] text-white font-semibold cursor-pointer rounded-xl hover:bg-[#2E4A9A] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>
@@ -379,28 +403,9 @@ const Checkout = () => {
                 <div className="p-2 bg-[#1E3A8A]/10 rounded-lg">
                   <Package size={18} className="text-[#1E3A8A]" />
                 </div>
-                <h2 className="text-xl font-semibold text-gray-700">Order Summary</h2>
-              </div>
-
-              <div className="max-h-80 overflow-y-auto space-y-3 mb-4 custom-scrollbar">
-                {checkout.map((item, index) => {
-                  const product = products.find((p) => p._id === item.id);
-                  if (!product) return null;
-                  return (
-                    <div key={index} className="flex justify-between items-start py-2">
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-800">{product.name}</p>
-                        <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                          <span>Size: {item.size}</span>
-                          <span>Qty: {item.quantity}</span>
-                        </div>
-                      </div>
-                      <span className="font-bold text-[#1E3A8A] text-sm">
-                        ₵{(product.new_price * item.quantity).toFixed(2)}
-                      </span>
-                    </div>
-                  );
-                })}
+                <h2 className="text-xl font-semibold text-gray-700">
+                  Order Summary
+                </h2>
               </div>
 
               <div className="border-t border-gray-100 pt-4 space-y-2">
@@ -414,7 +419,9 @@ const Checkout = () => {
                 </div>
                 <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-100">
                   <span>Total</span>
-                  <span className="text-[#1E3A8A]">₵{totalAmount().toFixed(2)}</span>
+                  <span className="text-[#1E3A8A]">
+                    ₵{totalAmount().toFixed(2)}
+                  </span>
                 </div>
               </div>
 
@@ -440,7 +447,7 @@ const Checkout = () => {
           border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #1E3A8A;
+          background: #1e3a8a;
           border-radius: 10px;
         }
       `}</style>
